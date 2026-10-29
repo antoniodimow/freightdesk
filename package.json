@@ -1,0 +1,11 @@
+{
+  "name": "freightdesk",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AI back office for small transport companies",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {}
+}
