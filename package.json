@@ -7,5 +7,10 @@
   "engines": {
     "node": ">=24 <25"
   },
-  "scripts": {}
+  "scripts": {
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d --wait",
+    "db:psql": "docker compose exec db psql -U freightdesk -d freightdesk"
+  }
 }
