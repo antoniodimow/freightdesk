@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      db:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: freightdesk
+          POSTGRES_PASSWORD: freightdesk
+          POSTGRES_DB: freightdesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U freightdesk -d freightdesk"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+
+    env:
+      DATABASE_URL: postgres://freightdesk:freightdesk@localhost:5432/freightdesk
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      - name: Database has pgvector
+        run: psql "$DATABASE_URL" -tAc "select 1 from pg_available_extensions where name = 'vector'" | grep -qx 1
